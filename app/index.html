@@ -1,0 +1,137 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <title>OnSwee</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="Gridder">
+        
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="mobile-web-app-capable" content="yes">
+        <link rel="shortcut icon" href="/favicon.ico">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- build:css styles/vendor.css -->
+        <!-- bower:css 
+        <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css">
+        <!-- endbower -->
+        <!-- endbuild -->
+        <!-- build:css(.tmp) styles/main.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+        <script type='text/javascript' src='http://code.jquery.com/jquery-2.0.2.js'></script>
+        <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+        <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+        <script type='text/javascript' src="scripts/jqueryuitouchpunch.js"></script>
+        <link rel="stylesheet" type="text/css" href="scripts/addtohomescreen.css">
+        <link rel="stylesheet" type="text/css" href="scripts/normalize.css">
+        <script type='text/javascript' src="scripts/addtohomescreen.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+<div id="startpage" class='cont'>
+  <h1>OnSwee</h1>
+  <div class="tomenu">Start</div>
+</div>
+<div id="menu" class='cont'>
+
+    <ol>
+        <li id="tooptions">2 Player</li>
+        <li id="tocpu">you vs. Cpu-not working yet</li>
+        <li id="tohighscore">Highscores</li>
+        <li id="toinstructions">Instructions</li>
+        <li id="tooptions">Options</li>
+        <li id="tocredits">Credits</li>
+    </ol>
+
+</div>
+<div id="instructions" class='cont'>
+<div class="tomenu">Back</div>
+    <ol>
+        <li>
+             <h2>How to play:</h2>
+
+        </li>
+        <li>
+            <p>You click on any square to place a piece on the game board. For the first 6 rounds of this game you and your opponent are not allowed to make a line through the center blue block be it, diagnal, vertical or horizontal, then after those rounds pass the object of the game is to make a line using the center block diagnally, vertically or horizontally by dragging your pieces. You also are not allowed at anytime to drag a piece from one gray block to another, you may move into an unoccupied space that is within a block radius other than this exception.</p>
+            <p>You and your opponent each have three pieces. For the first 3 rounds you will be placing your pieces wherever you like so long as it is not in a line through the center.The next 3 rounds you will drag (or swipe) your pieces to an adjacent spot that is empty while still not being able to create a line through the center blue block. Subsequently, you will proceed to play the rest of the game attempting to make a line through the center blue block before your opponent, whoever makes such a line Wins.</p>
+        </li>
+        <li>
+            <p>Player1 will go first, simply click on a block of your choosing to start the game.</p>
+        </li>
+    </ol>
+</div>
+<div id="highscore"><div class="tomenu">Back</div></div>
+<div id="credits" class="cont">
+<div class="tomenu">Back</div>
+    <ol>
+    <li>Nick Perez - Proggrammer and application developer</li>
+    <li>Yea thats all we really care about</li>
+    </ol>
+</div>
+<div id="options" class="cont">
+    
+    <input class="in" type="text"><input class="in" type="text"><input type="submit" onclick="randNaame()" value="Random Name" style="color:#000"><input type="submit" onclick="setName()" value="Set Your Name" style="color:#000"><div id="togame">Start</div>
+        </div>
+<div id="game" class='cont'>
+    <span id="turn">Player1's turn...</span><span id="round">Round: 1</span><span id="info">0 Turns until you can move the pieces.</span>
+
+    
+    
+        <div class="drop" data-row='1' data-col='1'></div>
+        <div class="drop" data-row='1' data-col='2'></div>
+        <div class="drop" data-row='1' data-col='3'></div>
+        <div class="drop" data-row='2' data-col='1'></div>
+        <div class="drop centr" data-row='2' data-col='2' id="centr"></div>
+        <div class="drop" data-row='2' data-col='3'></div>
+        <div class="drop" data-row='3' data-col='1'></div>
+        <div class="drop" data-row='3' data-col='2'></div>
+        <div class="drop" data-row='3' data-col='3'></div>
+    
+    <span id="whowon"><span id="P1"></span><span id="P2"></span></span>
+    <div class="tomenu">Back</div>
+    
+</div>
+
+
+
+        <!-- build:js scripts/vendor.js -->
+        <!-- 
+        <script src="../bower_components/jquery/dist/jquery.js"></script>
+        <!-- endbower -->
+        <!-- endbuild -->
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. 
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+
+        <!-- build:js scripts/plugins.js 
+        <script src="../bower_components/bootstrap/js/affix.js"></script>
+        <script src="../bower_components/bootstrap/js/alert.js"></script>
+        <script src="../bower_components/bootstrap/js/dropdown.js"></script>
+        <script src="../bower_components/bootstrap/js/tooltip.js"></script>
+        <script src="../bower_components/bootstrap/js/modal.js"></script>
+        <script src="../bower_components/bootstrap/js/transition.js"></script>
+        <script src="../bower_components/bootstrap/js/button.js"></script>
+        <script src="../bower_components/bootstrap/js/popover.js"></script>
+        <script src="../bower_components/bootstrap/js/carousel.js"></script>
+        <script src="../bower_components/bootstrap/js/scrollspy.js"></script>
+        <script src="../bower_components/bootstrap/js/collapse.js"></script>
+        <script src="../bower_components/bootstrap/js/tab.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:js({app,.tmp}) scripts/main.js -->
+        <script src="scripts/main.js"></script>
+        <!-- endbuild -->
+</body>
+</html>
