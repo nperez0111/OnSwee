@@ -1,36 +1,3 @@
-function getToX(x) {
-
-
-    var bol = true;
-    $('#box').show();
-    $('#collected').empty();
-    $('#collected').append("You've collected:<span id='amount'>0</span> Your time is: <span id='timer'>0.00</span><button id='resetb'>Reset</button><div id='game'></div>");
-    if (game.players) {
-        $('#collected').append("<span>Player 2 has won:<span id='P1'></span> Times / </span><span>Player 2 has won:<span id='P2'>0</span> Times</span>");
-    }
-    var start = new Date().getTime(),
-        time = 0,
-        elapsed = '0.0',
-        count = 0;
-
-    
-    instance();
-    $('#resetb').click(function (x) {
-        //if(bool){//if playing
-        $('.coin').remove();
-        game.arr = null;
-        game.arr = [];
-        game.collected = 0;
-        game.coins = 0;
-        bol = false;
-        bool = false;
-        count = 0;
-        getToX(x);
-        //}
-        //reset the game
-    });
-
-}
 function aiTurn(){
 
     if(turns<7){
@@ -154,4 +121,10 @@ function compareFor(index,indexer,pieces){
     else{
         return;
     }
+}
+function twoInLine(){
+    var pos=[[0,9],[0,4],[4,9],[1,7],[1,4],[4,7],[2,6],[2,4],[4,6],[3,5],[3,4],[4,5]];
+    $('.drop').each(function(i){
+        
+    });
 }
