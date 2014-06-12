@@ -28,7 +28,7 @@ addToHomescreen();
 
 function updateHud() {
 
-    $('#turn').html('Player' + ((turns % 2) + 1) + "'s turn...");
+    $('#turn').html(getName((turns % 2) + 1) + "'s turn...");
     $('#round').html("Round: " + (parseInt(turns / 2, 10) + 1));
     if (turns < 6) {
         $('#info').html(Math.abs(turns - 6) + ' Turns until you can move the pieces.');
@@ -98,7 +98,7 @@ $('.drop').click(function () {
         if (lastclicked === null && $(this).children(".draggable").size() > 0 && $(this).children(".draggable").text() == getName((turns % 2) + 1)) {
             $(this).addClass('selected');
             lastclicked = $(this);
-        } else if ($(this).children(".draggable").size() === 0) {
+        } else if ($(this).children(".draggable").size() === 0 && lastclicked !== null) {
 
             var bmoved = lastclicked.children(".draggable")[0];
 
@@ -272,11 +272,14 @@ function reset(x) {
         $('#P1').html(getName(1) + " has won:" + a + 'times.');
     } else if (x == getName(2)) {
         b++;
-        $('#P2').html(getName(1) + " has won:" + b + 'times.');
+        $('#P2').html(getName(2) + " has won:" + b + 'times.');
     }
     $('#turn').html("Player1's turn...");
     $('#round').html("Round: 1");
-    $('#info').html("New Game Let's Go!");
+    $('#info').html("New Game, Let's Go!");
+    if(x == getName(1)||x == getName(2)){
+    	saveNamesForScores(x == getName(1));
+    }
 }
 
 function moveWithRules(drop, drag,determin) {
@@ -342,6 +345,26 @@ $.each(buttons, function (index, val) {
         var curry;
         if (index === 0) {
             curry = $('#menu');
+        }
+        else if(index==1){console.log('It fired?');
+        	curry = $('#' + val.replace('#to', ''));
+        	if(setName()==false){$('#options').append("<div>You can't have the same names</div>");return;}
+        }
+        else if(index==2){
+        	curry = $('#' + val.replace('#to', ''));
+        	var data=localStorage.getObj('TotalStats');
+        	if(data!==null){
+        		var str='<ul id="Scores">';
+        		for(var i=0;i<data.length;i++){
+        			str+='<li>'+data[i][0]+' VS '+data[i][1]+' <span class="tally">('+data[i][2]+' to '+data[i][3]+')</span></li>';
+        		}
+        		str+='</ul><button type="submit" id="rstscr">Reset Highscores</button>'
+        		$('#highscore').append(str);
+        		$('#rstscr').click(function(){
+					$('#Scores').slideUp();
+					localStorage.clear();					
+				});
+        	}
         } else {
             curry = $('#' + val.replace('#to', ''));
         }
@@ -376,10 +399,11 @@ function setName(){
 $('.in').each(function(i){
 	if(i==0){nameOne=$(this).val();}
 	else{nameTwo=$(this).val();}
-});
-saveGameState(0);
+});if(nameOne==nameTwo){return false;}
+saveNames();
+return true;
 }
-var randName=['Jose','Pepe','Pene','Weirdo','Kid','Who?','Ugh','Selfie'];
+
 if(!getLastGame()){
 	randNaame();
 	
@@ -397,6 +421,7 @@ else{
 		});
 }
 function randNaame(){
+	var randName=['Jose','Pepe','Pene','Weirdo','Kid','Who?','Ugh','Selfie','Stalker','Awkward','That thing','Loser','Winner'];
 	$('.in').each(function(){
 		$(this).val(randName[parseInt(Math.random()*randName.length)]);
 	});
@@ -408,25 +433,18 @@ function supportsLocalStorage() {
     return false;
   }
 }
-var totTime=0;
-function saveGameState(curTime) {
-    if (!supportsLocalStorage()) { return false; }
-    totTime+= curTime;
-    var data={'Player1':nameOne,'Player2':nameTwo,'TimePlayed':totTime,'P1won':a+' times','P2won':a+' times'};
+
+function saveNames(){
+    if (!supportsLocalStorage()) { return; }
+    
+    var data={'Player1':nameOne,'Player2':nameTwo};
 
     if(localStorage.getItem('LastStats')===null){//first timers psh
     	localStorage.setObj('LastStats',data);
-    	var ret = localStorage.getObj('Stats');
-    	console.log('it work?');
-    	console.log(ret);
-    	return false;
+    	return;
     }
     localStorage.setObj('LastStats',data);
-    var ret = localStorage.getObj('LastStats');
-    	console.log('it work?');
-    	console.log(ret);
-
-    //localStorage["key"]="val"
+    
 }
 Storage.prototype.setObj = function(key, value) {
     this.setItem(key, JSON.stringify(value));
@@ -437,13 +455,42 @@ Storage.prototype.getObj = function(key) {
     return value && JSON.parse(value);
 }
 function getLastGame(){
-	if(localStorage.getItem('LastStats')===null){
-		console.log('was empty so lets choose random names');
-		return false;
+		if(localStorage.getItem('LastStats')===null){
+			return false;
+		}
+		else{
+			return JSON.parse(localStorage.getItem('LastStats'));
+		}
 	}
-	else{
-		console.log('let me remember your name...');
-		return JSON.parse(localStorage.getItem('LastStats'));
+
+function saveNamesForScores(bool){
+	if (!supportsLocalStorage()) { return; }
+
+	var data=[nameOne,nameTwo,a,b];
+
+	if(localStorage.getItem('TotalStats')===null){
+
+		localStorage.setObj('TotalStats',[data]);
+		return;
 	}
+	
+	var dat=localStorage.getObj('TotalStats');
+	
+	for(var i=0; i<dat.length;i++){
+		if(dat[i][0]==data[0]&&dat[i][1]==data[1]){
+
+			dat[i][2]+=bool?1:0;
+			dat[i][3]+=bool?0:1;
+
+		}
+
+		else if(((i+1)<dat.length)==false){
+
+			dat.push(data);
+
+		}
+	}
+	localStorage.setObj('TotalStats',dat);
+	//	var ret = localStorage.getObj('TotalStats');
+    
 }
-//saveGameState();
