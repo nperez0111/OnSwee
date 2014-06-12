@@ -129,7 +129,7 @@ span {
         font-size:1.2em
     }
 }
-.in, button, input[type="submit"]{color:#000;}
+.in, button, input[type="submit"],#rstscr{color:#000;}
 #titles
 {
 	position: absolute;

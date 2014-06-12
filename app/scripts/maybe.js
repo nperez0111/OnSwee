@@ -127,3 +127,9 @@ function compareFor(index,indexer,pieces){
         return;
     }
 }
+function twoInLine(){
+    var pos=[[0,9],[0,4],[4,9],[1,7],[1,4],[4,7],[2,6],[2,4],[4,6],[3,5],[3,4],[4,5]];
+    $('.drop').each(function(i){
+        
+    });
+}
