@@ -346,7 +346,7 @@ $.each(buttons, function (index, val) {
         if (index === 0) {
             curry = $('#menu');
         }
-        else if(index==1){console.log('It fired?');
+        else if(index==1){
         	curry = $('#' + val.replace('#to', ''));
         	if(setName()==false){$('#options').append("<div>You can't have the same names</div>");return;}
         }
@@ -355,14 +355,19 @@ $.each(buttons, function (index, val) {
         	var data=localStorage.getObj('TotalStats');
         	if(data!==null){
         		var str='<ul id="Scores">';
-        		for(var i=0;i<data.length;i++){
+        		for(var i=0,x=data.length;i<x;i++){
         			str+='<li>'+data[i][0]+' VS '+data[i][1]+' <span class="tally">('+data[i][2]+' to '+data[i][3]+')</span></li>';
         		}
         		str+='</ul><button type="submit" id="rstscr">Reset Highscores</button>'
         		$('#highscore').append(str);
         		$('#rstscr').click(function(){
-					$('#Scores').slideUp();
-					localStorage.clear();					
+                    if (confirm('Are you sure you want to save delete all Highscores?')) {
+                        $('#Scores').slideUp();
+                        localStorage.clear();   
+                    } else {
+                        return false;
+                    }
+									
 				});
         	}
         } else {
