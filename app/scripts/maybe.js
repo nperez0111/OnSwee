@@ -1,36 +1,3 @@
-function getToX(x) {
-
-
-    var bol = true;
-    $('#box').show();
-    $('#collected').empty();
-    $('#collected').append("You've collected:<span id='amount'>0</span> Your time is: <span id='timer'>0.00</span><button id='resetb'>Reset</button><div id='game'></div>");
-    if (game.players) {
-        $('#collected').append("<span>Player 2 has won:<span id='P1'></span> Times / </span><span>Player 2 has won:<span id='P2'>0</span> Times</span>");
-    }
-    var start = new Date().getTime(),
-        time = 0,
-        elapsed = '0.0',
-        count = 0;
-
-    
-    instance();
-    $('#resetb').click(function (x) {
-        //if(bool){//if playing
-        $('.coin').remove();
-        game.arr = null;
-        game.arr = [];
-        game.collected = 0;
-        game.coins = 0;
-        bol = false;
-        bool = false;
-        count = 0;
-        getToX(x);
-        //}
-        //reset the game
-    });
-
-}
 function aiTurn(){
 
     if(turns<7){
@@ -87,7 +54,7 @@ function winningMove(){
 
     }
 }
-function thisCanMove(pos){
+function thisCanMove(pos){//will return true if the index of the element(pos) has an option to move somewhere else cuz its empty
 var pieces= moveablePieces();
 var check=[
 [[1,2],[2,2],[2,1]],
@@ -102,13 +69,18 @@ var check=[
 [[2,2],[2,3],[3,2]],
 ]
 //double for loop to go through these and check if all are empty where needed
-if()
+for(var i=0;i<check[pos].length;i++){
+    if($('[data-row='+check[pos][i][0]+']').each(function(i){if(i==check[pos][i][1]){return $(this);}}).is(":empty")){
+        return true;
+    }
+}
+return false;
 }
 function thiscanMoveTo(pos){if(thisCanmove(pos)){
 
 }}
 function allThatAreTwoInALineForAny(determining){
-    var pieces=moveablePieces();var pairs=[];var count=0;
+    var pieces=moveablePieces(), pairs=[], count=0;
     if(compareFor(0,9,pieces)===determining){
         pairs[count]=[0,9];count++;
     }
