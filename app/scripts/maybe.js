@@ -5,7 +5,7 @@ function aiTurn(){
         //check to make sure that it is not making a line
     }
     else if(turns<13){//only worry if the other player can win when its the last two rounds
-        if(canWin()){
+        if(canWin(1)){
             blockWin();
         }
         else if(canMakeFork()){//if ai can make a fork then make it
@@ -19,10 +19,10 @@ function aiTurn(){
         }
     }
     else{
-        if(winningMove()){
+        if(canWin(2)){
             takeWin();
         }
-        else if(canWin()){
+        else if(canWin(1)){
             blockWin();
         }
         else if (canMakeFork()){
@@ -127,9 +127,24 @@ function compareFor(index,indexer,pieces){
         return;
     }
 }
-function twoInLine(){
-    var pos=[[0,9],[0,4],[4,9],[1,7],[1,4],[4,7],[2,6],[2,4],[4,6],[3,5],[3,4],[4,5]];
-    $('.drop').each(function(i){
-        
+function hasAI(r,c){//true if it has the AI, false if not
+    return($("[data-row='"+r+"']").each(function (i) {
+                        if ($(this).is("[data-col='"+c+"']")) {
+                            return $(this).children('.draggable').text()==getName(2);
+                        }
+                    }));
+}
+function canWin(){
+    var pos=[[0,8],[0,4],[4,8],[1,7],[1,4],[4,7],[2,6],[2,4],[4,6],[3,5],[3,4],[4,5]];
+    for(var i=0,l=pos.length;i<l;i++){
+        if(hasAI(pos[i][0])&&hasAI(pos[i][1])){
+            return true;
+        }
     });
+}
+
+function hasAI(index){
+    if(typeof data === 'number'){
+        return $('.drop').get(index).children('.draggable').text()==getName(2);
+    }
 }

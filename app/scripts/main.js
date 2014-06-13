@@ -9,11 +9,11 @@ var lastclicked = null;
 
 
 function resizer() {
-    /*if ($(window).height() < 768 && $(window).height() < $(window).width()) {
+    if ($(window).height() < 768 && $(window).height() < $(window).width()) {
         $('.cont').css({
-            'max-width': $(window).height() - 200 + "px"
+            'max-width': $(window).height() - 75 + "px"
         });
-    }*/
+    }
     
     var wid = $('.drop').width();
     var outwid = $('.drop').outerWidth();
@@ -132,9 +132,9 @@ function makeEm() {
 
     $('.draggable').draggable({
         helper: function (ev, ui) {
-            /*if ($(this).text() !== getName((turns % 2) + 1)) {
-                return false;
-            }*/
+            if ($(this).text() !== getName((turns % 2) + 1)) {
+                return "<div></div>";
+            }
             return "<span class='helperPick'>" + $(this).html() + "</span>";
 
         },
@@ -281,7 +281,7 @@ function reset(x) {
     	saveNamesForScores(x == getName(1));
     }
 }
-
+//drop is the one you are moving to drag is the one being moved
 function moveWithRules(drop, drag,determin) {
 
     turns++;
@@ -293,26 +293,20 @@ function moveWithRules(drop, drag,determin) {
     var dragc = parseInt(drop.attr("data-col"), 10);
 
     if (Math.abs(curr - dragr) < 2 && Math.abs(curc - dragc) < 2) {
-        if ((curr == 1 && curc == 2 && (dragr == 2 && (dragc == 1 || dragc == 3))) || (curr == 3 && curc == 2 && (dragr == 2 && (dragc == 1 || dragc == 3))) || (curr == 2 && curc == 1 && (dragc == 2 && (dragr == 1 || dragr == 3))) || (curr == 2 && curc == 3 && (dragc == 2 && (dragr == 1 || dragr == 3)))) {
+        if ((curr === 1 && curc === 2 && (dragr === 2 && (dragc === 1 || dragc === 3))) || (curr === 3 && curc === 2 && (dragr === 2 && (dragc === 1 || dragc === 3))) || (curr === 2 && curc === 1 && (dragc === 2 && (dragr === 1 || dragr === 3))) || (curr === 2 && curc === 3 && (dragc === 2 && (dragr === 1 || dragr === 3)))) {
             turns--;
             updateHud();
             return false;
         } else {
-            if(determin==false){//if we are draggin do it this way
+            if(determin===false||(drag.parent().hasClass('centr') === false&&!drop.hasClass('centr'))){//if we are draggin do it this way
                 drag.clone().appendTo(drop);
                 checkWin(turns > 12);
             }
             else{//if we are clickin do it this way
-            if (drag.parent().hasClass('centr') === false&&!drop.hasClass('centr')) {
-                                        drag.clone().appendTo(drop);
-                                        checkWin(turns > 12);//lets see if anyone won
-                                    }
-                                    else{ 
-                                    	
-                                    	drag.appendTo(drop);
-                                        checkWin(turns > 12);
-                                        
-                                    }
+
+            drag.appendTo(drop);
+            checkWin(turns > 12);
+
             }
             if (cheat && !resetty) {
                 drop.empty();
@@ -322,7 +316,7 @@ function moveWithRules(drop, drag,determin) {
 
             } else {
                 drop.empty();
-                if (!resetty || turns == 7) {
+                if (!resetty || turns === 7) {
                     drop.append(drag);
                 }
                 resetty = false;
@@ -348,7 +342,7 @@ $.each(buttons, function (index, val) {
         }
         else if(index==1){
         	curry = $('#' + val.replace('#to', ''));
-        	if(setName()==false){$('#options').append("<div>You can't have the same names</div>");return;}
+        	if(setName()===false){$('#options').append("<div>You can't have the same names</div>");return;}
         }
         else if(index==2){
         	curry = $('#' + val.replace('#to', ''));
@@ -402,9 +396,16 @@ function getName(number) {
 function setName(){
 
 $('.in').each(function(i){
-	if(i==0){nameOne=$(this).val();}
-	else{nameTwo=$(this).val();}
-});if(nameOne==nameTwo){return false;}
+	if(i===0){
+		nameOne=$(this).val();
+	}
+	else{
+		nameTwo=$(this).val();
+	}
+});
+if(nameOne===nameTwo){
+	return false;
+}
 saveNames();
 return true;
 }
@@ -498,4 +499,45 @@ function saveNamesForScores(bool){
 	localStorage.setObj('TotalStats',dat);
 	//	var ret = localStorage.getObj('TotalStats');
     
+}
+function canWin(x){
+    var pos=[[0,8],[1,7],[2,6],[3,5],[0,4],[4,8],[1,4],[4,7],[2,4],[4,6],[3,4],[4,5]];
+    var check=[[1,2,3,4,5,6,7],[0,2,3,4,5,6,8],[0,1,3,4,5,7,8],[0,1,2,4,6,7,8],[5,7],[1,3],[6,8],[0,2],[3,7],[1,5],[2,8],[0,6]];
+    for(var i=0,l=pos.length;i<l;i++){console.log(i);
+        if(hasIt(pos[i][0],x)&&hasIt(pos[i][1],x)){//There are 2 in a row..
+        	if(i<4&&isEmpty(4)){//auto return if it is two pieces on either side of center with center empty
+        		console.log(getName(x)+' Can Move to Win!!');
+
+        		for(var t=0,f=check[i].length;t<f;t++){
+        			if(hasIt(check[i][t],x)){
+        				moveWithRules($('#centr'),$($('.drop').get(check[i][t])).children('.draggable'),false);
+        				return true;
+        			}
+        		}
+
+            	return true;
+        	}
+        	else if(i>3){  var w;
+        	if(i%2==0){w=pos[i+1][1]}
+        	else{w=pos[i-1][0]} 
+        		//console.log("I is at:%s, W is at:%s first check is %s second check is %s third check is %s",i,w,hasIt(check[i][0],x),hasIt(check[i][1],x),isEmpty(w));     		
+        		if(isEmpty(w)){//the place where it should be empty it is
+        			if(hasIt(check[i][0],x)){//now check if we happen to have a piece that can move into that empty place
+        				moveWithRules($($('.drop').get(w)),$($('.drop').get(check[i][0])).children('.draggable'),false);
+        			}
+        			else if(hasIt(check[i][1],x)){
+        			moveWithRules($($('.drop').get(w)),$($('.drop').get(check[i][1])).children('.draggable'),false);
+        			return true;
+        			}
+        		}
+        	}
+        }
+    }
+}
+
+function hasIt(index,x){    
+        return ($($('.drop').get(index)).children().text()==getName(x));    
+}
+function isEmpty(index){
+	return ($($('.drop').get(index)).children().size()==0);
 }
