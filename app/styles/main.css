@@ -134,7 +134,7 @@ span {
 {
 	position: absolute;
 	width: 18em;
-	height: 50em;
+	height: 100%;
 	bottom: 0;
 	left: 50%;
 	margin-left: -9em;
@@ -153,7 +153,7 @@ span {
 	left: 0;
 	right: 0;
 	top: 0;
-	bottom: 60%;
+	bottom: 0%;
 	background-image: linear-gradient(top, rgba(0,0,0,1) 0%, transparent 100%);
 	pointer-events: none;
 }
