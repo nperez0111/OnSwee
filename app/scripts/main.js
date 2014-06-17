@@ -501,7 +501,7 @@ function aiTurn(){
         placeInPreffered();
     }
      else if(turns<13){//only worry if the other player can win when its the last two rounds
-        if(turns>11&&canWin(1)){
+        /*if(turns>11&&canWin(1)){
             blockWin();
         }
         /*else if(canMakeFork()){//if ai can make a fork then make it
@@ -509,10 +509,10 @@ function aiTurn(){
         }
         else if(canFork()){//if other player can make a fork block it
             blockFork();
-        }*/
-        else{
-            chooseBestLoc();
         }
+        else{*/
+            chooseBestLoc();
+        //}
     }
     else{
         if(canWin(2)){
@@ -533,7 +533,7 @@ function aiTurn(){
     }
 
 }
-function canWin(x){
+function canWin(x){//returns true if (x) can win and if X==2 itll try to move into that position
     var pos=[[0,8],[1,7],[2,6],[3,5],[0,4],[4,8],[1,4],[4,7],[2,4],[4,6],[3,4],[4,5]];
     var check=[[1,2,3,4,5,6,7],[0,2,3,4,5,6,8],[0,1,3,4,5,7,8],[0,1,2,4,6,7,8],[5,7],[1,3],[6,8],[0,2],[3,7],[1,5],[2,8],[0,6]];
     for(var i=0,l=pos.length;i<l;i++){console.log(i);
@@ -567,6 +567,7 @@ function canWin(x){
         	}
         }
     }
+    return false;
 }
 
 function hasIt(index,x){    
@@ -575,8 +576,11 @@ function hasIt(index,x){
 function isEmpty(index){
 	return ($($('.drop').get(index)).children().size()==0);
 }
+function isEmptyIn(index,arr){
+	return (arr[index]==null);
+}
 
-function getPosOf(x){
+function getPosOf(x){//returns an array of all the pos that (x) has in the current board
 	var pos=[], c=0;
     $('.drop').each(function(i){
        if($(this).children('.draggable').text()==getName(x)){
@@ -586,7 +590,17 @@ function getPosOf(x){
     });	
     return pos;
 }
-function getAllPos(){
+function getPosOfIn(x,arr){//returns an array of all the pos that (x) has
+	var pos=[], c=0;
+    $('.drop').each(function(i){
+       if(arr[i]==getName(x)){
+       	pos[c]=i;
+       	c++;
+       }
+    });	
+    return pos;
+}
+function getAllPos(){//returns an array of current board true for ai false for player and null if empty
 
     var all=[];
     $('.drop').each(function(i){
@@ -595,14 +609,23 @@ function getAllPos(){
     return all;
 
 }
-function canMove(pos){if(pos==4){return true;}
+function canMove(pos){//returns true if it can possile move on current gameboard
+	if(pos==4){return true;}
     var allmovelocationspossible=[[1,3,4],[0,2,4],[1,4,5],[1,4,6],[0,1,2,3,5,6,7,8],[2,4,8],[3,4,7],[4,6,8],[4,5,7]];
     for(var p=allmovelocationspossible[pos].length;p>0;p--){
         if(isEmpty(allmovelocationspossible[pos][p])){return true;}
     }
     return false;
 }
-function canMoveTo(pos,topos){
+function canMoveIn(pos,arr){//returns true if it can possile move in array
+	if(pos==4){return true;}
+    var allmovelocationspossible=[[1,3,4],[0,2,4],[1,4,5],[1,4,6],[0,1,2,3,5,6,7,8],[2,4,8],[3,4,7],[4,6,8],[4,5,7]];
+    for(var p=allmovelocationspossible[pos].length;p>0;p--){
+        if(isEmptyIn(allmovelocationspossible[pos][p],arr)){return true;}
+    }
+    return false;
+}
+function canMoveTo(pos,topos){//returns true if the topos is an empty position and is within the bounds of the game to move to false if otherwise
 	if(isEmpty(topos)==false){return false;}
 	var allmovelocationspossible=[[1,3,4],[0,2,4],[1,4,5],[1,4,6],[0,1,2,3,5,6,7,8],[2,4,8],[3,4,7],[4,6,8],[4,5,7]];
 	for(var p=allmovelocationspossible[pos].length;p>0;p--){
@@ -610,10 +633,18 @@ function canMoveTo(pos,topos){
     }
     return false;
 }
+function canMoveToIn(pos,topos,arr){//returns true if the topos is an empty position and is within the bounds of the game to move to false if otherwise
+	if(isEmptyIn(topos,arr)==false){return false;}
+	var allmovelocationspossible=[[1,3,4],[0,2,4],[1,4,5],[1,4,6],[0,1,2,3,5,6,7,8],[2,4,8],[3,4,7],[4,6,8],[4,5,7]];
+	for(var p=allmovelocationspossible[pos].length;p>0;p--){
+        if(allmovelocationspossible[pos][p]==topos){return true;}
+    }
+    return false;
+}
 
-function completeALine(poss,locs){
+function completeALine(poss,locs){//returns true if (poss) completes a line within locs
 if(turns<5){return false;}
-var pos=[[0,8],[1,7],[2,6],[3,5],[0,4],[4,8],[1,4],[4,7],[2,4],[4,6],[3,4],[4,5]];console.log('made it here, Locs is: '+locs);
+var pos=[[0,8],[1,7],[2,6],[3,5],[0,4],[4,8],[1,4],[4,7],[2,4],[4,6],[3,4],[4,5]];
 for(var i =0,l=pos.length;i<l;i++){
 	if(pos[i][0]==locs[0]&&pos[i][1]==locs[1]){
 		if(i<4){
@@ -628,7 +659,10 @@ for(var i =0,l=pos.length;i<l;i++){
 	}
 }
 }
-function placeInPreffered(){if(((turns%2)+1)==1){return;}
+function placeInPreffered(){//places pieces in the preffered positions
+	if(((turns%2)+1)==1){
+		return;
+	}
 	var possibles=[4,0,2,6,8,3,1,7,5];
 	var board =getPosOf(2);
 	for(var pos=0,l=possibles.length;pos<l;pos++){
@@ -638,9 +672,152 @@ function placeInPreffered(){if(((turns%2)+1)==1){return;}
 		}
 	}
 }
-function placeInPrefferred(pos){
+function placeInPrefferred(pos){//actually places the pieces on the board
 	$($('.drop').get(pos)).append('<div class="draggable P2" style="border-width:' + triangle + '">' + getName(2) + '</div>');
             checkWin(false);
             turns++;
 			updateHud();
+}
+function chooseBestLoc(){
+	var allPossible=getPossibleForIn(2,getAllPos()),highes=0,highest=0,storet={},store={};
+
+	for(var i=0,l=allPossible.length;i<l;i++){//loop to go through all possible choice the player can make now
+
+		var cur = getPossibleForIn(1,allPossible[i]);//next possible choices
+
+		var ranky=rankingOf(allPossible[i]);//ranking of current possible choice
+
+		if(ranky>highes){//if the rank is bigger than the highest we have save it to a store array
+					store.push(changInFrom(getAllPos(),allPossible[i]));
+				}
+		/*for(var c=0,cl=cur.length;c<cl;c++){//go through next possibles
+
+			var curry = getPossibleForIn(2,cur[c]);//next possibles
+
+			for(var r=0,rl=curry.length;r<rl;r++){//go through next possibles
+
+				var rank=rankingOf(curry[r]);// rank of next next possibles
+
+				if(rank>highest){//if the rank is bigger than the highest we have save it to a store array
+					storet.push(i,c,r);
+				}
+
+			}
+
+		}*/
+
+	}
+
+	leMoveTo(store[store.length-1],store[store.length-2]);
+
+}
+var rank={center:5,twoInLine:3,oneInLine:1,allCanMove:3};
+function rankingOf(x){
+	var curRank=0, r=rank, allX=getPosOfIn(2,x), allY=getPosOfIn(1,x);
+
+	for(var i=0,l=allX.length,y=x;i<l;i++){
+		if(allX[i]==4){
+			curRank+=r.center;
+		}
+		if(allY[i]==4){
+			curRank-=r.center;
+		}
+
+		if(canMoveIn(allX[i],y)){
+			curRank+=1;
+		}
+		else{
+			curRank-=8;
+		}
+
+		if(canMoveIn(allY[i],y)){
+			curRank-=1;
+		}
+		else{
+			curRank+=8;
+		}
+		
+	}
+	if(areTwoInALine(allX[0],allX[1])){
+		curRank+=r.twoInLine;
+	}
+	if(areTwoInALine(allX[1],allX[2])){
+		curRank+=r.twoInLine;
+	}
+	if(areTwoInALine(allX[0],allX[2])){
+		curRank+=r.twoInLine;
+	}
+	if(areTwoInALine(allY[0],allY[1])){
+		curRank-=r.twoInLine;
+	}
+	if(areTwoInALine(allY[1],allY[2])){
+		curRank-=r.twoInLine;
+	}
+	if(areTwoInALine(allY[0],allY[2])){
+		curRank-=r.twoInLine;
+	}
+	if(canMoveIn(allX[0],x)&&canMoveIn(allX[1],x)&&canMoveIn(allX[2],x)){
+		curRank+=r.allCanMove;
+	}
+
+	/*for(var i=0,l=x.length,y=x;i<l;i++){
+
+	}*/
+	return curRank;
+
+}
+function areTwoInALine(x,y){
+	var pos=[[0,8],[1,7],[2,6],[3,5],[0,4],[4,8],[1,4],[4,7],[2,4],[4,6],[3,4],[4,5]];
+	if(y<x){
+		var t=x;
+		x=y;
+		y=t;
+	}
+	for(var i=0,l=pos.length;i<l;i++){
+		if(pos[i][0]==x&&pos[i][1]==y){
+			return true;
+		}
+	}
+	return false;
+}
+function getPossibleForIn(x,arr){//returns all possible board orientations for X
+	var board=arr, all=getPosOfIn(x,board),re={};
+	for(var i=0,l=all.length;i<l;i++){
+		if(canMoveIn(all[i],board)===false){
+			all[i].splice(i, 1);i--;
+		}
+	}
+	for(var b=0,bl=board.length;b<bl;b++){
+		for(var a=0,al=board.length;a<al;a++){
+			if(canMoveToIn(all[a],b,board)){
+				var copy=board;
+				copy[all[a]]=null;
+				copy[b]=(x==2);
+				
+				re.push(copy);
+			}
+		}
+	}
+
+	return re;
+}
+
+function leMoveTo(x,y){
+
+moveWithRules($($('.drop').get(y)),$($('.drop').get(x)).children('.draggable'),false);
+
+}
+function changeInFrom(prev,newy){
+	var re={};
+	for(var p=0,pl=prev.length;p<pl;p++){
+		
+			if(prev[p]==null&&prev[p]!==newy[p]){
+				re[0]=p;
+			}
+			if(prev[p]&&prev[p]!==newy[p]){
+				re[1]=p;
+			}
+		
+	}
+	return re;
 }
