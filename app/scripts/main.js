@@ -511,7 +511,7 @@ function aiTurn(){
             blockFork();
         }
         else{*/
-            chooseBestLoc();
+            chooseBestLoc(turns<13);
         //}
     }
     else{
@@ -528,7 +528,7 @@ function aiTurn(){
             blockFork();
         }*/
         else{
-            chooseBestLoc();
+            chooseBestLoc(turns<13);
         }
     }
 
@@ -572,6 +572,9 @@ function canWin(x){//returns true if (x) can win and if X==2 itll try to move in
 
 function hasIt(index,x){    
         return ($($('.drop').get(index)).children().text()==getName(x));    
+}
+function hasItIn(index,x,arr){    
+        return arr[index]==(x==2);    
 }
 function isEmpty(index){
 	return ($($('.drop').get(index)).children().size()==0);
@@ -665,12 +668,16 @@ function placeInPreffered(){//places pieces in the preffered positions
 	}
 	var possibles=[4,0,2,6,8,3,1,7,5];
 	var board =getPosOf(2);
-	for(var pos=0,l=possibles.length;pos<l;pos++){
+    var pos=parseInt(Math.random()*possibles.length,10);
+	//for(var pos=0,l=possibles.length;pos<l;pos++){
 		if(isEmpty(possibles[pos])&&!completeALine(possibles[pos],board)){
 			placeInPrefferred(possibles[pos]);
 			return;
 		}
-	}
+        else{
+            placeInPreffered();
+        }
+	//}
 }
 function placeInPrefferred(pos){//actually places the pieces on the board
 	$($('.drop').get(pos)).append('<div class="draggable P2" style="border-width:' + triangle + '">' + getName(2) + '</div>');
@@ -678,7 +685,8 @@ function placeInPrefferred(pos){//actually places the pieces on the board
             turns++;
 			updateHud();
 }
-function chooseBestLoc(){
+var prior=[];
+function chooseBestLoc(turnbool){
 	var allPossible=getPossibleForIn(2,getAllPos()),highes=0,highest=0,storet=[],store=[];console.log(allPossible);
 
 	for(var i=0,l=allPossible.length;i<l;i++){//loop to go through all possible choice the player can make now
@@ -690,9 +698,20 @@ function chooseBestLoc(){
 
 
 		if(ranky>highes){//if the rank is bigger than the highest we have save it to a store array
-					store=changeInFrom(getAllPos(),allPossible[i]);
-					console.log('New Highest at:'+ranky);
-					highes=ranky;
+					var change = changeInFrom(getAllPos(),allPossible[i]),rand=Math.random();console.log(prior);
+                    if(turnbool && isAWinIn(2,allPossible[i])){
+                        //dont save the score if it will be a win
+                    } 
+                    else if(prior.length>3&&change[0]==prior[prior.length-4]&&change[1]==prior[prior.length-3]){
+                        //dont move back to the last position you were with an 80% chance of not moving
+                        console.log('we blocked something');
+                    }
+                    else{
+                        store=change;
+    					console.log('New Highest at:'+ranky);
+                        console.log(store);
+    					highes=ranky;
+                    }
 				} 
 		///*
 		for(var c=0,cl=cur.length;c<cl;c++){//go through next possibles
@@ -700,7 +719,7 @@ function chooseBestLoc(){
 			var curry = getPossibleForIn(2,cur[c]);//next possibles
 
 			for(var r=0,rl=curry.length;r<rl;r++){//go through next possibles
-				console.log(curry);
+				//console.log(curry);
 
 				var rank=rankingOf(curry[r]);// rank of next next possibles
 
@@ -717,16 +736,17 @@ function chooseBestLoc(){
 
 	}
 	if(rank-highes<4){
-		leMoveTo(store[0],store[1]);
+		leMoveTo(store[0],store[1]);prior.push(store);
 	}
 	else{
-		leMoveTo(storet[0],storet[1]);
+		leMoveTo(storet[0],storet[1]);prior.push(storet);
 	}
+
 	
 
 }
-var rank={center:5,twoInLine:3,oneInLine:1,allCanMove:3,abouttowin:14,win:30};
-function rankingOf(x){console.log(x);
+var rank={center:5,twoInLine:3,oneInLine:1,allCanMove:3,abouttowin:15,win:30};
+function rankingOf(x){//console.log(x);
 	var curRank=0, r=rank, allX=getPosOfIn(2,x), allY=getPosOfIn(1,x);
 
 	for(var i=0,l=allX.length>allY.length?allX.length:allY.length,y=x;i<l;i++){
@@ -793,7 +813,7 @@ function rankingOf(x){console.log(x);
 
 }
 function areTwoInALine(x,y){
-	var pos=[[0,8],[1,7],[2,6],[3,5],[0,4],[4,8],[1,4],[4,7],[2,4],[4,6],[3,4],[4,5]];
+	var pos=[[0,8],[1,7],[2,6],[3,5],[0,4],[4,8],[1,4],[4,7],[2,4],[4,6],[3,4],[4,5],[6,8],[2,8],[0,2],[0,6]];
 	if(y<x){
 		var t=x;
 		x=y;
@@ -848,9 +868,42 @@ function changeInFrom(prev,newy){
 	return re;
 }
 function isAboutToWinIn(x,arr){//returns true if is one of the board orientaions to win
+    var pos=[[0,8],[1,7],[2,6],[3,5],[0,4],[4,8],[1,4],[4,7],[2,4],[4,6],[3,4],[4,5]];
+    var check=[[1,2,3,4,5,6,7],[0,2,3,4,5,6,8],[0,1,3,4,5,7,8],[0,1,2,4,6,7,8],[5,7],[1,3],[6,8],[0,2],[3,7],[1,5],[2,8],[0,6]];
+    for(var i=0,l=pos.length;i<l;i++){
+        if(hasItIn(pos[i][0],x,arr)&&hasItIn(pos[i][1],x,arr)){//There are 2 in a row..
+            if(i<4&&isEmpty(4)){//auto return if it is two pieces on either side of center with center empty
+                return true;
+            }
+            else if(i>3){  var w;
+            if(i%2==0){w=pos[i+1][1]}
+            else{w=pos[i-1][0]} 
+                //console.log("I is at:%s, W is at:%s first check is %s second check is %s third check is %s",i,w,hasIt(check[i][0],x),hasIt(check[i][1],x),isEmpty(w));            
+                if(isEmptyIn(w,arr)){//the place where it should be empty it is
+                    if(hasItIn(check[i][0],x,arr)){//now check if we happen to have a piece that can move into that empty place
+                        
+                        return true;
+                    }
+                    else if(hasItIn(check[i][1],x,arr)){
+                    
+                    return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+
 
 }
 function isAWinIn(x,arr){//returns true if there is a line through the center
-	
+var Wins = [[0,4,8],[1,4,7],[2,4,6],[3,4,5]], all=getPosOfIn(x,arr).sort();
+if(all[0]>3){
+    return false;
+}var cur=Wins[all[0]];
+if(cur[1]==all[1]&&cur[2]==all[2]){
+    return true;
+}
+
 
 }
