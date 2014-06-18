@@ -592,12 +592,12 @@ function getPosOf(x){//returns an array of all the pos that (x) has in the curre
 }
 function getPosOfIn(x,arr){//returns an array of all the pos that (x) has
 	var pos=[], c=0;
-    $('.drop').each(function(i){
-       if(arr[i]==getName(x)){
+    for(var i=0,l=arr.length;i<l;i++){
+       if(arr[i]==(x==2)){
        	pos[c]=i;
        	c++;
        }
-    });	
+    }	
     return pos;
 }
 function getAllPos(){//returns an array of current board true for ai false for player and null if empty
@@ -619,7 +619,7 @@ function canMove(pos){//returns true if it can possile move on current gameboard
 }
 function canMoveIn(pos,arr){//returns true if it can possile move in array
 	if(pos==4){return true;}
-    var allmovelocationspossible=[[1,3,4],[0,2,4],[1,4,5],[1,4,6],[0,1,2,3,5,6,7,8],[2,4,8],[3,4,7],[4,6,8],[4,5,7]];
+    var allmovelocationspossible=[[1,3,4],[0,2,4],[1,4,5],[0,4,6],[0,1,2,3,5,6,7,8],[2,4,8],[3,4,7],[4,6,8],[4,5,7]];
     for(var p=allmovelocationspossible[pos].length;p>0;p--){
         if(isEmptyIn(allmovelocationspossible[pos][p],arr)){return true;}
     }
@@ -635,9 +635,9 @@ function canMoveTo(pos,topos){//returns true if the topos is an empty position a
 }
 function canMoveToIn(pos,topos,arr){//returns true if the topos is an empty position and is within the bounds of the game to move to false if otherwise
 	if(isEmptyIn(topos,arr)==false){return false;}
-	var allmovelocationspossible=[[1,3,4],[0,2,4],[1,4,5],[1,4,6],[0,1,2,3,5,6,7,8],[2,4,8],[3,4,7],[4,6,8],[4,5,7]];
+	var allmovelocationspossible=[[1,3,4],[0,2,4],[1,4,5],[0,4,6],[0,1,2,3,5,6,7,8],[2,4,8],[3,4,7],[4,6,8],[4,5,7]];
 	for(var p=allmovelocationspossible[pos].length;p>0;p--){
-        if(allmovelocationspossible[pos][p]==topos){return true;}
+        if(allmovelocationspossible[pos][p-1]==topos){return true;}
     }
     return false;
 }
@@ -679,40 +679,54 @@ function placeInPrefferred(pos){//actually places the pieces on the board
 			updateHud();
 }
 function chooseBestLoc(){
-	var allPossible=getPossibleForIn(2,getAllPos()),highes=0,highest=0,storet={},store={};
+	var allPossible=getPossibleForIn(2,getAllPos()),highes=0,highest=0,storet=[],store=[];console.log(allPossible);
 
 	for(var i=0,l=allPossible.length;i<l;i++){//loop to go through all possible choice the player can make now
 
 		var cur = getPossibleForIn(1,allPossible[i]);//next possible choices
 
 		var ranky=rankingOf(allPossible[i]);//ranking of current possible choice
+		
+
 
 		if(ranky>highes){//if the rank is bigger than the highest we have save it to a store array
-					store.push(changInFrom(getAllPos(),allPossible[i]));
-				}
-		/*for(var c=0,cl=cur.length;c<cl;c++){//go through next possibles
+					store=changeInFrom(getAllPos(),allPossible[i]);
+					console.log('New Highest at:'+ranky);
+					highes=ranky;
+				} 
+		///*
+		for(var c=0,cl=cur.length;c<cl;c++){//go through next possibles
 
 			var curry = getPossibleForIn(2,cur[c]);//next possibles
 
 			for(var r=0,rl=curry.length;r<rl;r++){//go through next possibles
+				console.log(curry);
 
 				var rank=rankingOf(curry[r]);// rank of next next possibles
 
-				if(rank>highest){//if the rank is bigger than the highest we have save it to a store array
-					storet.push(i,c,r);
+				if(rank-highes>highest){//if the rank is bigger than the highest we have save it to a store array
+					storet=changeInFrom(getAllPos(),allPossible[i]);
+					console.log('New Highest of the second level');
+					highest=rank;
+					console.log(storet);
 				}
 
 			}
 
-		}*/
+		}//*/
 
 	}
-
-	leMoveTo(store[store.length-1],store[store.length-2]);
+	if(rank-highes<4){
+		leMoveTo(store[0],store[1]);
+	}
+	else{
+		leMoveTo(storet[0],storet[1]);
+	}
+	
 
 }
 var rank={center:5,twoInLine:3,oneInLine:1,allCanMove:3};
-function rankingOf(x){
+function rankingOf(x){console.log(x);
 	var curRank=0, r=rank, allX=getPosOfIn(2,x), allY=getPosOfIn(1,x);
 
 	for(var i=0,l=allX.length,y=x;i<l;i++){
@@ -730,7 +744,7 @@ function rankingOf(x){
 			curRank-=8;
 		}
 
-		if(canMoveIn(allY[i],y)){
+		if(typeof allY[i] !=="undefined"&&canMoveIn(allY[i],y)){
 			curRank-=1;
 		}
 		else{
@@ -781,16 +795,16 @@ function areTwoInALine(x,y){
 	return false;
 }
 function getPossibleForIn(x,arr){//returns all possible board orientations for X
-	var board=arr, all=getPosOfIn(x,board),re={};
+	var board=arr, all=getPosOfIn(x,board),re=[];
 	for(var i=0,l=all.length;i<l;i++){
 		if(canMoveIn(all[i],board)===false){
 			all[i].splice(i, 1);i--;
 		}
 	}
 	for(var b=0,bl=board.length;b<bl;b++){
-		for(var a=0,al=board.length;a<al;a++){
+		for(var a=0,al=all.length;a<al;a++){
 			if(canMoveToIn(all[a],b,board)){
-				var copy=board;
+				var copy=board.slice();
 				copy[all[a]]=null;
 				copy[b]=(x==2);
 				
@@ -804,7 +818,7 @@ function getPossibleForIn(x,arr){//returns all possible board orientations for X
 
 function leMoveTo(x,y){
 
-moveWithRules($($('.drop').get(y)),$($('.drop').get(x)).children('.draggable'),false);
+moveWithRules($($('.drop').get(x)),$($('.drop').get(y)).children('.draggable'),true);
 
 }
 function changeInFrom(prev,newy){
