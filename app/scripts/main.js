@@ -725,11 +725,11 @@ function chooseBestLoc(){
 	
 
 }
-var rank={center:5,twoInLine:3,oneInLine:1,allCanMove:3};
+var rank={center:5,twoInLine:3,oneInLine:1,allCanMove:3,abouttowin:14,win:30};
 function rankingOf(x){console.log(x);
 	var curRank=0, r=rank, allX=getPosOfIn(2,x), allY=getPosOfIn(1,x);
 
-	for(var i=0,l=allX.length,y=x;i<l;i++){
+	for(var i=0,l=allX.length>allY.length?allX.length:allY.length,y=x;i<l;i++){
 		if(allX[i]==4){
 			curRank+=r.center;
 		}
@@ -737,7 +737,7 @@ function rankingOf(x){console.log(x);
 			curRank-=r.center;
 		}
 
-		if(canMoveIn(allX[i],y)){
+		if(typeof allX[i] !=="undefined"&&canMoveIn(allX[i],y)){
 			curRank+=1;
 		}
 		else{
@@ -772,6 +772,18 @@ function rankingOf(x){console.log(x);
 	}
 	if(canMoveIn(allX[0],x)&&canMoveIn(allX[1],x)&&canMoveIn(allX[2],x)){
 		curRank+=r.allCanMove;
+	}
+	if(isAboutToWinIn(2,x)){
+		curRank+=r.abouttowin
+	}
+	else if(isAboutToWinIn(1,x)){
+		curRank-=r.abouttowin
+	}
+	if(isAWinIn(2,x)){
+		curRank+=r.win
+	}
+	else if(isAWinIn(1,x)){
+		curRank+=r.win
 	}
 
 	/*for(var i=0,l=x.length,y=x;i<l;i++){
@@ -834,4 +846,11 @@ function changeInFrom(prev,newy){
 		
 	}
 	return re;
+}
+function isAboutToWinIn(x,arr){//returns true if is one of the board orientaions to win
+
+}
+function isAWinIn(x,arr){//returns true if there is a line through the center
+	
+
 }
