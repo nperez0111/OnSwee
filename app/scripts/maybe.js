@@ -3,9 +3,10 @@ function aiTurn(){
     if(turns<7){
         //place in preffered coordinates
         //check to make sure that it is not making a line
+        placeInPreffered();
     }
     else if(turns<13){//only worry if the other player can win when its the last two rounds
-        if(canWin(1)){
+        if(turns>11&&canWin(1)){
             blockWin();
         }
         else if(canMakeFork()){//if ai can make a fork then make it
@@ -148,3 +149,4 @@ function hasAI(index){
         return $('.drop').get(index).children('.draggable').text()==getName(2);
     }
 }
+
