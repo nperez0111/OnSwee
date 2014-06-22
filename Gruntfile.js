@@ -33,13 +33,13 @@ module.exports = function (grunt) {
                 files: ['bower.json'],
                 tasks: ['bowerInstall']
             },
-            js: {
+            /*js: {
                 files: ['<%= config.app %>/scripts/{,*/}*.js'],
                 tasks: ['jshint'],
                 options: {
                     livereload: true
                 }
-            },
+            },*/
             jstest: {
                 files: ['test/spec/{,*/}*.js'],
                 tasks: ['test:watch']
@@ -121,18 +121,18 @@ module.exports = function (grunt) {
         },
 
         // Make sure code styles are up to par and there are no obvious mistakes
-        jshint: {
+        /*jshint: {
             options: {
                 jshintrc: '.jshintrc',
                 reporter: require('jshint-stylish')
             },
             all: [
                 'Gruntfile.js',
-                '<%= config.app %>/scripts/{,*/}*.js',
+                '<%= config.app %>/scripts/{,* /}*.js',
                 '!<%= config.app %>/scripts/vendor/*',
-                'test/spec/{,*/}*.js'
+                'test/spec/{,* /}*.js'
             ]
-        },
+        },*/
 
         // Mocha testing framework configuration options
         mocha: {
@@ -362,9 +362,9 @@ module.exports = function (grunt) {
         'htmlmin'
     ]);
 
-    grunt.registerTask('default', [
+    /*grunt.registerTask('default', [
         'newer:jshint',
         'test',
         'build'
-    ]);
+    ]);*/
 };

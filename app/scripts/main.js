@@ -1,4 +1,12 @@
-var turns = 0, cheat = false, resetty = false, a = 0, b = 0, pad = parseInt($('.drop').css('padding-top').replace('px', ''), 10), triangle, lastclicked = null;
+var turns = 0,
+ cheat = false,
+ resetty = false,
+ a = 0,
+ b = 0,
+ pad = parseInt($('.drop').css('padding-top').replace('px', ''), 10),
+ triangle,
+ lastclicked = null,
+ AI=false;
 
 
 function resizer() {
@@ -33,7 +41,7 @@ function updateHud() {
 }
 
 
-$('.drop').click(function () {
+$('.drop').click(function () {console.log('Was clicked! With turns at:'+turns);
     if (turns < 6) {
         if ($(this).children().length === 0) {
 
@@ -62,6 +70,9 @@ $('.drop').click(function () {
             }
 
             updateHud();
+            if(turns!==0&&AI){
+				aiTurn();
+			}
 
         }
     }
@@ -103,6 +114,9 @@ $('.drop').click(function () {
                     lastclicked.removeClass('selected');
                     lastclicked = null;
                 }
+				if(turns!==0&&AI){
+					aiTurn();
+				}
 
             }
         } else if ($(this).is(lastclicked)) { //how to deselect self
@@ -134,7 +148,7 @@ function makeEm() {
         cursor: "pointer",
         cursorAt: {
             left: $('.drop').width()/2,
-            top: $('.drop').width()/2
+            top: $('.drop').height()/2
         }
     });
     
@@ -150,6 +164,9 @@ function makeEm() {
             } else {
 
                 moveWithRules($(this), $(ui.draggable),false);
+                if(turns!==0&&AI){
+					aiTurn();
+				}
 
             }
 
@@ -267,6 +284,7 @@ function reset(x) {
     $('#turn').html(getName(1) + " turn...");
     $('#round').html("Round: 1");
     $('#info').html("New Game, Let's Go!");
+    prior=[];
     if(x == getName(1)||x == getName(2)){
     	alert(x + ' Won!!');
     	saveNamesForScores(x == getName(1));
@@ -320,10 +338,11 @@ function moveWithRules(drop, drag,determin) {
         return false;
     }
 
+	
 
 }
 
-var buttons = ['.tomenu', '#togame', '#tohighscore', '#toinstructions', '#tocredits', '#tooptions'];
+var buttons = ['.tomenu', '#togame', '#tohighscore', '#toinstructions', '#tocredits', '#tooptions','#tocpu'];
 var current = $('#startpage');
 $.each(buttons, function (index, val) {
     $(val).click(function () {
@@ -355,7 +374,12 @@ $.each(buttons, function (index, val) {
 									
 				});
         	}
-        } else {
+        }
+        else if(index == 6){
+        	curry=$('#options');
+        	setAI(true);
+        }
+         else {
             curry = $('#' + val.replace('#to', ''));
         }
         current /*.css('position','absolute')*/
@@ -374,7 +398,8 @@ $.each(buttons, function (index, val) {
         $('#' + val.replace('#to', '')).hide();
     }
 });
-var nameOne = "Player1",
+
+var nameOne = "Player 1",
 nameTwo = "Player 2";
 
 function getName(number) {
@@ -398,6 +423,7 @@ if(nameOne===nameTwo){
 	return false;
 }
 saveNames();
+
 return true;
 }
 
@@ -417,11 +443,15 @@ else{
 		}
 		});
 }
+
 function randNaame(){
 	var randName=['Jose','Pepe','Pene','Weirdo','Kid','Who?','Ugh','Selfie','Stalker','Awkward','That thing','Loser','Winner'];
 	$('.in').each(function(){
 		$(this).val(randName[parseInt(Math.random()*randName.length)]);
 	});
+}
+function setAI(b){
+	AI = b;
 }
 function supportsLocalStorage() {
   try {
@@ -451,6 +481,7 @@ Storage.prototype.getObj = function(key) {
     var value = this.getItem(key);
     return value && JSON.parse(value);
 }
+
 function getLastGame(){
 		if(localStorage.getItem('LastStats')===null){
 			return false;
@@ -488,44 +519,23 @@ function saveNamesForScores(bool){
 		}
 	}
 	localStorage.setObj('TotalStats',dat);
-	//	var ret = localStorage.getObj('TotalStats');
-    
 }
+
 function aiTurn(){console.time("AI Turn");
 
     if(turns<7){
-        //place in preffered coordinates
-        //check to make sure that it is not making a line
         placeInPreffered();
     }
-     else if(turns<13){//only worry if the other player can win when its the last two rounds
-        /*if(turns>11&&canWin(1)){
-            blockWin();
-        }
-        /*else if(canMakeFork()){//if ai can make a fork then make it
-            makeFork();
-        }
-        else if(canFork()){//if other player can make a fork block it
-            blockFork();
-        }
-        else{*/
+     else if(turns<13){
             chooseBestLoc(turns<13);
-        //}
     }
     else{
         if(canWin(2)){
             console.log('AI Won...');
         }
         else if(canWin(1)){
-            //blockWin();
             console.log('AI Blocked...');
-        }/*
-        else if (canMakeFork()){
-            makeFork();
         }
-        else if(canFork()){//if other player can make a fork block it
-            blockFork();
-        }*/
         else{
             chooseBestLoc(turns<13);
         }
@@ -556,11 +566,14 @@ function canWin(x){//returns true if (x) can win and if X==2 itll try to move in
         		//console.log("I is at:%s, W is at:%s first check is %s second check is %s third check is %s",i,w,hasIt(check[i][0],x),hasIt(check[i][1],x),isEmpty(w));     		
         		if(isEmpty(w)){//the place where it should be empty it is
         			if(hasIt(check[i][0],2)){//now check if we happen to have a piece that can move into that empty place
+        				console.log('We are changing from %s to %s',check[i][0],w);
         				moveWithRules($($('.drop').get(w)),$($('.drop').get(check[i][0])).children('.draggable'),false);
         				return true;
         			}
         			else if(hasIt(check[i][1],2)){
+        			console.log('We are changing from %s to %s',check[i][1],w);
         			moveWithRules($($('.drop').get(w)),$($('.drop').get(check[i][1])).children('.draggable'),false);
+        			
         			return true;
         			}
         		}
@@ -713,8 +726,9 @@ function chooseBestLoc(turnbool){
                         console.log(store);
     					highes=ranky;
                     }
+                    trackcurrent(allPossible[i]);
 				} 
-		///*
+		
 		for(var c=0,cl=cur.length;c<cl;c++){//go through next possibles
 
 			var curry = getPossibleForIn(2,cur[c]);//next possibles
@@ -724,44 +738,86 @@ function chooseBestLoc(turnbool){
 
 				var rank=rankingOf(curry[r]);// rank of next next possibles
 
-				if(Math.abs(rank-highes)>highest){//if the rank is bigger than the highest we have save it to a store array
-					var changer = changeInFrom(getAllPos(),allPossible[i]),rand=Math.random();
+				if(rank>highest){//if the rank is bigger than the highest we have save it to a store array
+					var changer = changeInFrom(getAllPos(),allPossible[i]);
                     if(turnbool && isAWinIn(2,allPossible[i])){
                         //dont save the score if it will be a win
                         console.log("We could've Won we chose not to" );
                     } 
                     else if(prior.length>1&&changer[0]==prior[prior.length-2][0]&&changer[1]==prior[prior.length-2][1]){
-                        //dont move back to the last position you were with an 80% chance of not moving
+                        //dont move back to the last position you were 
                         console.log('we blocked something');
                     }
                     else{
-                    storet=changer;
-					console.log('New Highest of the second level');
-					highest=rank;
-					console.log(storet);
+	                    storet=changer;
+						console.log('New Highest of the second level at:'+rank);
+						highest=rank;
+						console.log(storet);
 					}
+					trackcurrent(allPossible[i]);
+					console.log('To get to:');
+					trackcurrent(curry[r]);
 				}
 
 			}
 
-		}//*/
+		}
 
+	}var boolfer=false;
+	if(Math.abs(highest-highes)<15){
+		prior.push([store[0],store[1]]);
+		if(store[0]==4||store[1]==4){
+			boolfer=true
+		}
+		trackcurrent(getAllPos());
+		leMoveTo(store[0],store[1],boolfer);
+		trackcurrent(getAllPos());
 	}
-	if(Math.abs(rank-highes)<7){prior.push([store[0],store[1]]);console.log(prior);
-		leMoveTo(store[0],store[1]);
+	else{
+		prior.push([storet[0],storet[1]]);
+		console.log('is else');
+		if(storet[0]==4||storet[1]==4){
+			boolfer=true
+		}
+		trackcurrent(getAllPos());
+		leMoveTo(storet[0],storet[1],boolfer);
+		trackcurrent(getAllPos());
 	}
-	else{prior.push([storet[0],storet[1]]);console.log(prior);
-		leMoveTo(storet[0],storet[1]);
-	}
-
 	
-
 }
-var rank={center:5,twoInLine:3,oneInLine:1,allCanMove:3,abouttowin:15,win:30};
-function rankingOf(x){//console.log(x);
-	var curRank=0, r=rank, allX=getPosOfIn(2,x), allY=getPosOfIn(1,x);
+function trackcurrent(bo){
+	var bro="",brt="",br="";
+	for(var i=0,l=bo.length;i<l;i++){
+		if(i/3<1){
+		bro+=bo[i]?' X ':bo[i]==null?' _ ':' O ';
+		}
+		else if(i/3<2){
+			brt+=bo[i]?' X ':bo[i]==null?' _ ':' O ';
+		}
+		else{
+			br+=bo[i]?' X ':bo[i]==null?' _ ':' O ';
+		}
+	}
+	console.log('_________');
+	console.log(bro);
+	console.log(brt);
+	console.log(br);
+	console.log('_________');
+}
+function rankingOf(x){//x is the board we need to rank
+	var curRank=0,
+	 r={
+	 	center:15,
+	 	twoInLine:3,
+	 	oneInLine:1,
+	 	allCanMove:10,
+	 	abouttowin:5,
+	 	win:10
+	 },
+	 allX=getPosOfIn(2,x), 
+	 allY=getPosOfIn(1,x);
 
-	for(var i=0,l=allX.length>allY.length?allX.length:allY.length,y=x;i<l;i++){
+	 for(var i=0,l=allX.length>allY.length?allX.length:allY.length,y=x;i<l;i++){
 		if(allX[i]==4){
 			curRank+=r.center;
 		}
@@ -770,14 +826,14 @@ function rankingOf(x){//console.log(x);
 		}
 
 		if(typeof allX[i] !=="undefined"&&canMoveIn(allX[i],y)){
-			curRank+=1;
+			curRank+=2;
 		}
 		else{
 			curRank-=8;
 		}
 
 		if(typeof allY[i] !=="undefined"&&canMoveIn(allY[i],y)){
-			curRank-=1;
+			curRank-=2;
 		}
 		else{
 			curRank+=8;
@@ -818,9 +874,6 @@ function rankingOf(x){//console.log(x);
 		curRank+=r.win
 	}
 
-	/*for(var i=0,l=x.length,y=x;i<l;i++){
-
-	}*/
 	return curRank;
 
 }
@@ -860,9 +913,9 @@ function getPossibleForIn(x,arr){//returns all possible board orientations for X
 	return re;
 }
 
-function leMoveTo(x,y){
+function leMoveTo(x,y,boolfer){
 
-moveWithRules($($('.drop').get(x)),$($('.drop').get(y)).children('.draggable'),true);
+moveWithRules($($('.drop').get(x)),$($('.drop').get(y)).children('.draggable'),boolfer);
 
 }
 function changeInFrom(prev,newy){
@@ -909,13 +962,12 @@ function isAboutToWinIn(x,arr){//returns true if is one of the board orientaions
 
 }
 function isAWinIn(x,arr){//returns true if there is a line through the center
-var Wins = [[0,4,8],[1,4,7],[2,4,6],[3,4,5]], all=getPosOfIn(x,arr).sort();
-if(all[0]>3){
-    return false;
-}var cur=Wins[all[0]];
-if(cur[1]==all[1]&&cur[2]==all[2]){
-    return true;
-}
-
-
+	var Wins = [[0,4,8],[1,4,7],[2,4,6],[3,4,5]], all=getPosOfIn(x,arr).sort();
+	if(all[0]>3){
+	    return false;
+	}
+	var cur=Wins[all[0]];
+	if(cur[1]==all[1]&&cur[2]==all[2]){
+	    return true;
+	}
 }
