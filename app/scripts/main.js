@@ -284,11 +284,19 @@ function reset(x) {
     $('#turn').html(getName(1) + " turn...");
     $('#round').html("Round: 1");
     $('#info').html("New Game, Let's Go!");
+
     prior=[];
+    
     if(x == getName(1)||x == getName(2)){
+    	if(!AI){
     	alert(x + ' Won!!');
     	saveNamesForScores(x == getName(1));
+    	}
+    	else{
+    	saveAI(x==getName(1));
+    	}
     }
+    
 }
 //drop is the one you are moving to drag is the one being moved
 function moveWithRules(drop, drag,determin) {
@@ -358,7 +366,11 @@ $.each(buttons, function (index, val) {
         	curry = $('#' + val.replace('#to', ''));
         	var data=localStorage.getObj('TotalStats');
         	if(data!==null){
-        		var str='<ul id="Scores">';
+        		var str='<ul id="Scores">',air=localStorage.getObj('AIStats');
+        		if(air!==null){
+        			str+='<li>You VS AI <span class="tally">('+air.You+' to '+air.AI+')</span></li>';
+        		}
+
         		for(var i=0,x=data.length;i<x;i++){
         			str+='<li>'+data[i][0]+' VS '+data[i][1]+' <span class="tally">('+data[i][2]+' to '+data[i][3]+')</span></li>';
         		}
@@ -367,7 +379,8 @@ $.each(buttons, function (index, val) {
         		$('#rstscr').click(function(){
                     if (confirm('Are you sure you want to save delete all Highscores?')) {
                         $('#Scores').slideUp();
-                        localStorage.clear();   
+                        localStorage.clear(); 
+                        $('#P1').html("");$('#P2').html(""); reset(null);
                     } else {
                         return false;
                     }
@@ -376,7 +389,7 @@ $.each(buttons, function (index, val) {
         	}
         }
         else if(index == 6){
-        	curry=$('#options');
+        	curry=$('#game');
         	setAI(true);
         }
          else {
@@ -399,8 +412,8 @@ $.each(buttons, function (index, val) {
     }
 });
 
-var nameOne = "Player 1",
-nameTwo = "Player 2";
+var nameOne = "You",
+nameTwo = "AI";
 
 function getName(number) {
     if (number == 1) {
@@ -520,7 +533,23 @@ function saveNamesForScores(bool){
 	}
 	localStorage.setObj('TotalStats',dat);
 }
+function saveAI(bool){//bool is true then add one to 'You'
+	if (!supportsLocalStorage()) { return; }
 
+	if(localStorage.getItem('AIStats')===null){
+
+		localStorage.setObj('AIStats',{'You':bool?1:0,'AI':bool?0:1});
+		return;
+	}
+
+	var dat=localStorage.getObj('AIStats');
+
+	dat.You+=bool?1:0;
+
+	dat.AI+=bool?0:1;
+
+	localStorage.setObj('AIStats',dat);
+}
 function aiTurn(){console.time("AI Turn");
 
     if(turns<7){
