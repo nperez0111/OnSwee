@@ -361,6 +361,17 @@ $.each(buttons, function (index, val) {
         else if(index==1){
         	curry = $('#' + val.replace('#to', ''));
         	if(setName()===false){$('#options').append("<div>You can't have the same names</div>");return;}
+        	if(AI){
+        		if (confirm('Click OK to continue playing with another player and CANCEL to continue playing the CPU')) {
+                         reset(null);$('#P1').html("");$('#P2').html("");updateHud();a=0;b=0;setAI(null);
+                    } else {
+                        curry=$('#game');
+                    }
+        	}
+        	else if(AI==false){
+        		setAI(null);
+        	}
+        	
         }
         else if(index==2){
         	curry = $('#' + val.replace('#to', ''));
@@ -389,8 +400,29 @@ $.each(buttons, function (index, val) {
         	}
         }
         else if(index == 6){
-        	curry=$('#game');
-        	setAI(true);
+        	if(AI==null){
+        		if (confirm('Click OK to continue playing with the CPU and CANCEL to continue playing with the other player')) {
+                         reset(null);
+                         $('#P1').html("");
+                         $('#P2').html("");
+                         updateHud();
+                         a=0;
+                         b=0;
+                         curry=$('#game');
+                         setAI(true);
+                         nameOne = "You";
+                         nameTwo = "AI";
+                    } 
+                    else {
+                       curry=$('#game');
+                    }
+        	}
+        	else if(AI==false){
+        		curry=$('#game');
+        		setAI(true);
+        		nameOne = "You";
+        		nameTwo = "AI";
+        	}
         }
          else {
             curry = $('#' + val.replace('#to', ''));
