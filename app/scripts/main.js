@@ -361,6 +361,7 @@ $.each(buttons, function (index, val) {
         else if(index==1){
         	curry = $('#' + val.replace('#to', ''));
         	if(setName()===false){$('#options').append("<div>You can't have the same names</div>");return;}
+        	updateHud();
         	if(AI){
         		if (confirm('Click OK to continue playing with another player and CANCEL to continue playing the CPU')) {
                          reset(null);$('#P1').html("");$('#P2').html("");updateHud();a=0;b=0;setAI(null);
@@ -386,7 +387,7 @@ $.each(buttons, function (index, val) {
         			str+='<li>'+data[i][0]+' VS '+data[i][1]+' <span class="tally">('+data[i][2]+' to '+data[i][3]+')</span></li>';
         		}
         		str+='</ul><button type="submit" id="rstscr">Reset Highscores</button>'
-        		$('#highscore').append(str);
+        		$('#hcont').html(str);
         		$('#rstscr').click(function(){
                     if (confirm('Are you sure you want to save delete all Highscores?')) {
                         $('#Scores').slideUp();
@@ -412,6 +413,7 @@ $.each(buttons, function (index, val) {
                          setAI(true);
                          nameOne = "You";
                          nameTwo = "AI";
+                         updateHud();
                     } 
                     else {
                        curry=$('#game');
@@ -427,12 +429,10 @@ $.each(buttons, function (index, val) {
          else {
             curry = $('#' + val.replace('#to', ''));
         }
-        current /*.css('position','absolute')*/
-        .fadeOut('slow');
+        current.fadeOut('slow');
 
-        curry /*.css('position','relative')*/
-        .fadeIn('slow');
-        //current.delay(1000).css('position','relative');
+        curry.fadeIn('slow');
+        
         current = curry;
     });
     if (index === 0) {
@@ -626,16 +626,10 @@ function canWin(x){//returns true if (x) can win and if X==2 itll try to move in
         	else{w=pos[i-1][0]} 
         		//console.log("I is at:%s, W is at:%s first check is %s second check is %s third check is %s",i,w,hasIt(check[i][0],x),hasIt(check[i][1],x),isEmpty(w));     		
         		if(isEmpty(w)){//the place where it should be empty it is
-        			if(hasIt(check[i][0],2)){//now check if we happen to have a piece that can move into that empty place
+        			if(hasIt(check[i][i%2],2)){//now check if we happen to have a piece that can move into that empty place
         				console.log('We are changing from %s to %s',check[i][0],w);
         				moveWithRules($($('.drop').get(w)),$($('.drop').get(check[i][0])).children('.draggable'),false);
         				return true;
-        			}
-        			else if(hasIt(check[i][1],2)){
-        			console.log('We are changing from %s to %s',check[i][1],w);
-        			moveWithRules($($('.drop').get(w)),$($('.drop').get(check[i][1])).children('.draggable'),false);
-        			
-        			return true;
         			}
         		}
         	}
@@ -868,12 +862,14 @@ function trackcurrent(bo){
 function rankingOf(x){//x is the board we need to rank
 	var curRank=0,
 	 r={
-	 	center:15,
+	 	center:10,
 	 	twoInLine:3,
-	 	oneInLine:1,
-	 	allCanMove:10,
+	 	oneInLine:2,
+	 	canmove:3,
+	 	cantmove:-6,
+	 	allCanMove:6,
 	 	abouttowin:5,
-	 	win:10
+	 	win:8
 	 },
 	 allX=getPosOfIn(2,x), 
 	 allY=getPosOfIn(1,x);
@@ -887,17 +883,17 @@ function rankingOf(x){//x is the board we need to rank
 		}
 
 		if(typeof allX[i] !=="undefined"&&canMoveIn(allX[i],y)){
-			curRank+=2;
+			curRank+=r.canmove;
 		}
 		else{
-			curRank-=8;
+			curRank+=r.cantmove;
 		}
 
 		if(typeof allY[i] !=="undefined"&&canMoveIn(allY[i],y)){
-			curRank-=2;
+			curRank-=r.canmove;
 		}
 		else{
-			curRank+=8;
+			curRank-=r.cantmove;
 		}
 		
 	}
@@ -932,7 +928,7 @@ function rankingOf(x){//x is the board we need to rank
 		curRank+=r.win
 	}
 	else if(isAWinIn(1,x)){
-		curRank+=r.win
+		curRank-=r.win
 	}
 
 	return curRank;
