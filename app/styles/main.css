@@ -182,7 +182,7 @@ span {
 }
 #startpage {
     background-image:url("../images/1.jpg");
-    background-size: contain;
+    background-size: cover;
 }
 h1{
     margin:0 auto;

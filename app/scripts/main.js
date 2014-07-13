@@ -976,7 +976,7 @@ moveWithRules($($('.drop').get(x)),$($('.drop').get(y)).children('.draggable'),b
 
 }
 function changeInFrom(prev,newy){
-	var re={};
+	var re=[];
 	for(var p=0,pl=prev.length;p<pl;p++){
 		
 			if(prev[p]==null&&prev[p]!==newy[p]){
