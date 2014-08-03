@@ -11,7 +11,7 @@ var turns = 0,
 
 function resizer() {
     if ($(window).height() < 768 && $(window).height() < $(window).width()) {
-        $('.cont').css({
+        $('.conte').css({
             'max-width': $(window).height() - 75 + "px"
         });
     }
@@ -350,8 +350,7 @@ function moveWithRules(drop, drag,determin) {
 
 }
 
-var buttons = ['.tomenu', '#togame', '#tohighscore', '#toinstructions', '#tocredits', '#tooptions','#tocpu'];
-var current = $('#startpage');
+var buttons = ['.tomenu', '#togame', '#tohighscore', '#toinstructions', '#tocredits', '#tooptions','#tocpu'], current = $('#startpage');
 $.each(buttons, function (index, val) {
     $(val).click(function () {
         var curry;
@@ -360,7 +359,7 @@ $.each(buttons, function (index, val) {
         }
         else if(index==1){
         	curry = $('#' + val.replace('#to', ''));
-        	if(setName()===false){$('#options').append("<div>You can't have the same names</div>");return;}
+        	if(setName()===false){alert("You can't have the same names");return;}
         	updateHud();
         	if(AI){
         		if (confirm('Click OK to continue playing with another player and CANCEL to continue playing the CPU')) {
@@ -411,8 +410,8 @@ $.each(buttons, function (index, val) {
                          b=0;
                          curry=$('#game');
                          setAI(true);
-                         nameOne = "You";
-                         nameTwo = "AI";
+                         names[0] = "You";
+                         names[1] = "AI";
                          updateHud();
                     } 
                     else {
@@ -422,8 +421,8 @@ $.each(buttons, function (index, val) {
         	else if(AI==false){
         		curry=$('#game');
         		setAI(true);
-        		nameOne = "You";
-        		nameTwo = "AI";
+        		names[0] = "You";
+        		names[1] = "AI";
         	}
         }
          else {
@@ -444,27 +443,26 @@ $.each(buttons, function (index, val) {
     }
 });
 
-var nameOne = "You",
-nameTwo = "AI";
+var names=["You","AI"];
 
 function getName(number) {
     if (number == 1) {
-        return nameOne;
+        return names[0];
     } else if (number == 2) {
-        return nameTwo;
+        return names[1];
     }
 }
 function setName(){
 
 $('.in').each(function(i){
 	if(i===0){
-		nameOne=$(this).val();
+		names[0]=$(this).val();
 	}
 	else{
-		nameTwo=$(this).val();
+		names[1]=$(this).val();
 	}
 });
-if(nameOne===nameTwo){
+if(names[0]===names[1]){
 	return false;
 }
 saveNames();
@@ -488,12 +486,50 @@ else{
 		}
 		});
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function randNaame(){
-	var randName=['Jose','Pepe','Pene','Weirdo','Kid','Who?','Ugh','Selfie','Stalker','Awkward','That thing','Loser','Winner'];
-	$('.in').each(function(){
-		$(this).val(randName[parseInt(Math.random()*randName.length)]);
+	var randName=['Jose','Pepe','Pene','Weirdo','Kid','Who?','Ugh','Selfie','Stalker','Awkward','That thing','Loser','Winner'],nam1=randName[parseInt(Math.random()*randName.length)],nam2=randName[parseInt(Math.random()*randName.length)];
+	$('.in').each(function(i){
+		if(1==i){$(this).val(nam1);}
+		else{$(this).val(nam1);}
 	});
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+$('.ico').on('swipeleft',function(){
+	alert("l");
+		nextIcon($(this).index(),true);
+});
+
+$('.ico').on('swiperight',function(){
+	alert("r");
+		nextIcon($(this).index(),false);
+});
+
+function nextIcon(Which,bool){
+	// func to change to the next Icon that isnt on the other side
+	var arrofIcos=['Fire','Water','Wind','Earth'],curcon=g$('.ico').get(Which).css('background-image'),icol=arrofIcos[0];//strip url off curcon or put full urls in arr
+	curcon=curcon.substring(curcon.lastIndexOf('/')+1,curcon.lastIndexOf('.'));
+	for(var i =(bool?0:1),l=arrofIcos.length-(bool?1:0);i<l;i++){//sets icol to next icon
+		if(curcon==arrofIcos[i]){
+			icol=arrofIcos[i+(bool?1:-1)];
+		}
+	}
+	$('.ico').get(Which).css('background-image',icol);//sets background to icol
+
+}
+
+function saveNames(){
+    if (!supportsLocalStorage()) { return; }
+    
+    var data={'Player1':names[0],'Player2':names[1]};
+
+    if(localStorage.getItem('LastStats')===null){//first timers psh
+    	localStorage.setObj('LastStats',data);
+    	return;
+    }
+    localStorage.setObj('LastStats',data);
+    
 }
 function setAI(b){
 	AI = b;
@@ -504,19 +540,6 @@ function supportsLocalStorage() {
   } catch (e) {
     return false;
   }
-}
-
-function saveNames(){
-    if (!supportsLocalStorage()) { return; }
-    
-    var data={'Player1':nameOne,'Player2':nameTwo};
-
-    if(localStorage.getItem('LastStats')===null){//first timers psh
-    	localStorage.setObj('LastStats',data);
-    	return;
-    }
-    localStorage.setObj('LastStats',data);
-    
 }
 Storage.prototype.setObj = function(key, value) {
     this.setItem(key, JSON.stringify(value));
@@ -539,7 +562,7 @@ function getLastGame(){
 function saveNamesForScores(bool){
 	if (!supportsLocalStorage()) { return; }
 
-	var data=[nameOne,nameTwo,a,b];
+	var data=[names[0],names[1],a,b];
 
 	if(localStorage.getItem('TotalStats')===null){
 
@@ -755,15 +778,56 @@ function placeInPrefferred(pos){//actually places the pieces on the board
 }
 var prior=[];
 function chooseBestLoc(turnbool){
-	var allPossible=getPossibleForIn(2,getAllPos()),highes=0,highest=0,storet=[],store=[];console.log(allPossible);
+	var allPossible=getPossibleForIn(2,getAllPos()),highes=0,highest=0,storet=[],store=[],arrOfRanks=new Array(new Array()),arrOfNextRanks=[],dingDing=null;console.log(allPossible);
 
 	for(var i=0,l=allPossible.length;i<l;i++){//loop to go through all possible choice the player can make now
 
-		var cur = getPossibleForIn(1,allPossible[i]);//next possible choices
+		var rankOfStem=rankingOf(allPossible[i]);//ranking of current possible choice
+		if (!arrOfRanks[i]) arrOfRanks[i] = [];
+		arrOfRanks[i][0]=turnbool && isAWinIn(2,allPossible[i])?0:rankOfStem;
+		if(!turnbool&&isAWinIn(2,allPossible[i])){
+			dingDing=allPossible[i];//store the automagic winner and just play that board;
+			break;
+		}
+		if(rankOfStem>0){
+			var cur = getPossibleForIn(1,allPossible[i]);//next possible choices
 
-		var ranky=rankingOf(allPossible[i]);//ranking of current possible choice
-		
+				for(var c=0,cl=cur.length;c<cl;c++){//go through next possibles
 
+				var curry = getPossibleForIn(2,cur[c]);//next possibles
+
+				for(var r=0,rl=curry.length;r<rl;r++){//go through next possibles
+					
+					var rank=rankingOf(curry[r]);// rank of next next possibles
+
+					arrOfRanks[i][r+1]=rank;
+
+					/*if(rank>highest){//if the rank is bigger than the highest we have save it to a store array
+						var changer = changeInFrom(getAllPos(),allPossible[i]);
+	                    if(turnbool && isAWinIn(2,allPossible[i])){
+	                        //dont save the score if it will be a win
+	                        console.log("We could've Won we chose not to" );
+	                    } 
+	                    else if(prior.length>1&&changer[0]==prior[prior.length-2][0]&&changer[1]==prior[prior.length-2][1]){
+	                        //dont move back to the last position you were 
+	                        console.log('we blocked something');
+	                    }
+	                    else{
+		                    storet=changer;
+							console.log('New Highest of the second level at:'+rank);
+							highest=rank;
+							console.log(storet);
+						}
+						trackcurrent(allPossible[i]);
+						console.log('To get to:');
+						trackcurrent(curry[r]);
+					}*/
+
+				}
+
+			}
+		}
+/*
 
 		if(ranky>highes){//if the rank is bigger than the highest we have save it to a store array
 					var change = changeInFrom(getAllPos(),allPossible[i]),rand=Math.random();
@@ -783,63 +847,77 @@ function chooseBestLoc(turnbool){
                     }
                     trackcurrent(allPossible[i]);
 				} 
+		*/
 		
-		for(var c=0,cl=cur.length;c<cl;c++){//go through next possibles
 
-			var curry = getPossibleForIn(2,cur[c]);//next possibles
+	}
 
-			for(var r=0,rl=curry.length;r<rl;r++){//go through next possibles
-				//console.log(curry);
+	if(dingDing!==null){
+		//use dingDing
+		var change = changeInFrom(getAllPos(),dingDing);
+		moveAndRecord(change[0],change[1]);
+	}
+	else{
+		var greatestAvg=0,posOf=0;
 
-				var rank=rankingOf(curry[r]);// rank of next next possibles
+		for(var r=0,lr=arrOfRanks.length;r<lr;r++){
 
-				if(rank>highest){//if the rank is bigger than the highest we have save it to a store array
-					var changer = changeInFrom(getAllPos(),allPossible[i]);
-                    if(turnbool && isAWinIn(2,allPossible[i])){
-                        //dont save the score if it will be a win
-                        console.log("We could've Won we chose not to" );
-                    } 
-                    else if(prior.length>1&&changer[0]==prior[prior.length-2][0]&&changer[1]==prior[prior.length-2][1]){
-                        //dont move back to the last position you were 
-                        console.log('we blocked something');
-                    }
-                    else{
-	                    storet=changer;
-						console.log('New Highest of the second level at:'+rank);
-						highest=rank;
-						console.log(storet);
+			if(arrOfRanks[r]>0){
+				var sum=0;
+
+				for(var c=0,lc=arrOfRanks[r].length;c<lc;c++){
+
+					if(c+1!==lc){
+						sum+=arrOfRanks[r][c+1];
 					}
-					trackcurrent(allPossible[i]);
-					console.log('To get to:');
-					trackcurrent(curry[r]);
+					else{
+
+						sum=(sum/(arrOfRanks-2));
+
+					}
+
 				}
+				arrOfRanks[r][0]=sum;
+				if(sum>greatestAvg){
+					greatestAvg=sum;
+					posOf=r;
+				}
+
+
 
 			}
 
 		}
 
-	}var boolfer=false;
-	if(Math.abs(highest-highes)<15){
-		prior.push([store[0],store[1]]);
-		if(store[0]==4||store[1]==4){
-			boolfer=true
+			var change = changeInFrom(getAllPos(),allPossible[posOf]);
+			moveAndRecord(change[0],change[1]);
+
+
+			
+			/*if(Math.abs(highest-highes)<15){
+				prior.push([store[0],store[1]]);
+				trackcurrent(getAllPos());
+				leMoveTo(store[0],store[1],store[0]==4||store[1]==4?true:false);
+				trackcurrent(getAllPos());
+			}
+			else{
+				prior.push([storet[0],storet[1]]);
+				console.log('is else');
+				trackcurrent(getAllPos());
+				leMoveTo(storet[0],storet[1],store[0]==4||store[1]==4?true:false);
+				trackcurrent(getAllPos());
+			}*/
 		}
-		trackcurrent(getAllPos());
-		leMoveTo(store[0],store[1],boolfer);
-		trackcurrent(getAllPos());
-	}
-	else{
-		prior.push([storet[0],storet[1]]);
-		console.log('is else');
-		if(storet[0]==4||storet[1]==4){
-			boolfer=true
-		}
-		trackcurrent(getAllPos());
-		leMoveTo(storet[0],storet[1],boolfer);
-		trackcurrent(getAllPos());
-	}
-	
+			
 }
+
+function moveAndRecord(a,b){
+	prior.push([a,b]);
+	trackcurrent(getAllPos());
+	leMoveTo(a,b,a==4||b==4?true:false);
+	trackcurrent(getAllPos());
+}
+
 function trackcurrent(bo){
 	var bro="",brt="",br="";
 	for(var i=0,l=bo.length;i<l;i++){
@@ -919,16 +997,16 @@ function rankingOf(x){//x is the board we need to rank
 		curRank+=r.allCanMove;
 	}
 	if(isAboutToWinIn(2,x)){
-		curRank+=r.abouttowin
+		curRank+=r.abouttowin;
 	}
 	else if(isAboutToWinIn(1,x)){
-		curRank-=r.abouttowin
+		curRank-=r.abouttowin;
 	}
 	if(isAWinIn(2,x)){
-		curRank+=r.win
+		curRank+=r.win;
 	}
 	else if(isAWinIn(1,x)){
-		curRank-=r.win
+		return -1;
 	}
 
 	return curRank;

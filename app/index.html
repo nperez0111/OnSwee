@@ -21,15 +21,19 @@
         <link rel="stylesheet" type="text/css" href="scripts/normalize.css">
         <link rel="stylesheet" href="styles/main.css">
         <!-- endbuild -->
+         <!--<script src="../bower_components/jquery/dist/jquery.js"></script>-->
+        <script src="scripts/viewport-units-buggyfill.js"></script>
+<script>window.viewportUnitsBuggyfill.init();</script>
         <script type='text/javascript' src='http://code.jquery.com/jquery-2.0.2.js'></script>
+        <script type='text/javascript' src='http://www.netcu.de/templates/netcu/js/jquery.touchwipe.min.js'></script>
         <script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-        <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
         <script type='text/javascript' src="scripts/jqueryuitouchpunch.js"></script>
+        <script type='text/javascript' src="scripts/jquery.detect_swipe.js"></script>
         <link rel="stylesheet" type="text/css" href="scripts/addtohomescreen.css">
         <script type='text/javascript' src="scripts/addtohomescreen.js"></script>
     </head>
     <body>
-        <!--[if lt IE 10]>
+        <!--[if lt IE 9]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 <div id="startpage" class='cont'>
@@ -79,9 +83,42 @@
 </div>
 <div id="options" class="cont">
     
-    <input class="in" type="text"><input class="in" type="text"><input type="submit" onclick="randNaame()" value="Random Name"><input type="submit" value="Start" id="togame">
+    
+    
+        <div class="lefty toppy ico">
+        
+            
+            
         </div>
-<div id="game" class='cont'>
+        <div class="lefty bottommy">
+        
+            <input class="in" type="text">
+            
+        </div>
+    
+    
+    
+    
+    
+        <div class="righty toppy">
+        
+            <input class="in" type="text">
+            
+        </div>
+        <div class="righty bottommy ico">
+        
+            
+            
+        </div>
+    
+    
+    <!--
+    <input type="submit" onclick="randNaame()" value="Random Name">
+    <input type="submit" value="Start" id="togame">-->
+    
+        </div>
+        
+<div id="game" class='cont conte'>
     <span id="turn">Player 1's turn...</span><span id="round">Round: 1</span><span id="info">6 Turns until you can move the pieces.</span>
 
     
@@ -103,8 +140,8 @@
 
 
         <!-- build:js scripts/vendor.js -->
-        <!-- 
-        <script src="../bower_components/jquery/dist/jquery.js"></script>
+        
+       
         <!-- endbower -->
         <!-- endbuild -->
 
